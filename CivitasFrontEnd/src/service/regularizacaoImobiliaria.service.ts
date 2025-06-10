@@ -1,43 +1,16 @@
-import { api } from '../axios-config';
+import { api } from '../axios-config'; 
+import { z } from 'zod';
+import { createFormSchema } from '../types/regularizacaoImobiliario.validation';
 
-export type RegisterUserProps = {
-  name: string;
-  isForeign?: boolean;
-  cpf?: string;
-};
+export type RegularizacaoData = z.infer<typeof createFormSchema>;
 
-export async function registerUser(data: RegisterUserProps) {
-  const response = await api.post(`/auth/register`, data);
+
+export async function createRegularizacao(data: RegularizacaoData) {
+  const response = await api.post(`/regularizacao-imobiliario`, data);
+
   if (response.status !== 201) {
-    throw new Error('Erro no registro');
+    throw new Error('Erro no cadastro da regularização imobiliária');
   }
-  return response.data;
-}
 
-export async function getUserByEmail(email: string) {
-  const response = await api.get(`/users/email/${email}`);
-
-  if (response.status !== 200) {
-    throw new Error('Erro no registro');
-  }
-  return response.data;
-}
-
-export async function getUserMe() {
-  const response = await api.get(`/users/me`);
-
-  if (response.status !== 200) {
-    throw new Error('Erro no registro');
-  }
-  return response.data;
-}
-
-
-
-export async function getAllUsers(data: any) {
-  const response = await api.get(`/users`, data);
-  if (response.status !== 200) {
-    throw new Error('Erro no registro');
-  }
   return response.data;
 }
