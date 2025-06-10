@@ -1,7 +1,8 @@
 import { cpf } from 'cpf-cnpj-validator';
 import { z } from 'zod';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+// Tamanho máximo de 5MB para o arquivo
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 
 export const createFormSchema = z.object({
@@ -11,92 +12,96 @@ export const createFormSchema = z.object({
     message: "CPF inválido",
   }),
   rgTitular: z.string().min(1, 'O RG é obrigatório'),
-  dataNascTitular: z.coerce.date({ required_error: "A data de nascimento é obrigatória." }).nullable(),  contatoTitular: z.string().optional(),
-  profissaoTitular: z.string().optional(),
-  escolaridadeTitular: z.string().optional(),
-  tituloEleitoralTitular: z.string().optional(),
-  cadUnicoTitular: z.string().optional(),
+  dataNascimentoTitular: z.coerce.date({ invalid_type_error: "A data de nascimento é inválida." })
+    .refine(val => val !== null, { message: "A data de nascimento é obrigatória." })
+    .nullable(),
+  contatoTitular: z.string().min(1, "O contato é obrigatório"),
+  profissaoTitular: z.string().min(1, "A profissão é obrigatória"),
+  escolaridadeTitular: z.string().min(1, "A escolaridade é obrigatória"),
+  tituloEleitoralTitular: z.string().min(1, "O título de eleitor é obrigatório"),
+  cadUnicoTitular: z.string().min(1, "O CadÚnico é obrigatório"),
   estadoCivilTitular: z.string().min(1, "O estado civil é obrigatório"),
 
   // --- Dados do Cônjuge ---
-  nomeConjuge: z.string().optional(),
-  cpfConjuge: z.string().optional(),
-  rgConjuge: z.string().optional(),
-  dataNascConjuge: z.coerce.date().nullable().optional(),
-  contatoConjuge: z.string().optional(),
-  profissaoConjuge: z.string().optional(),
-  escolaridadeConjuge: z.string().optional(),
+  nomeConjugue: z.string().optional(),
+  cpfConjugue: z.string().optional(),
+  rgConjugue: z.string().optional(),
+  dataNascimentoConjugue: z.coerce.date().optional().nullable(),
+  contatoConjugue: z.string().optional(),
+  profissaoConjugue: z.string().optional(),
+  escolaridadeConjugue: z.string().optional(),
 
   // --- Situação Socioeconômica e Familiar ---
-  rendaFamiliar: z.string().optional(),
-  acessoBeneficiosSociais: z.string().optional(),
-  qualBeneficioSocial: z.string().optional(),
-
+  rendaFamiliar: z.string().min(1, "A renda familiar é obrigatória"),
+  acessoABeneficiosSociais: z.object({
+    possuiBeneficiosSociais: z.enum(['Sim', 'Não']).refine(val => val !== null, { message: "Selecione uma opção." }).nullable(),
+    quaisBeneficiosSociais: z.string().optional(),
+  }),
   composicaoFamiliar: z.array(
     z.object({
-        nome: z.string().min(1, 'obrigatório.'),
-        parentesco: z.string().min(1, 'obrigatório.'),
-        dataNasc: z.coerce.date({
-            invalid_type_error: 'Data de nascimento inválida.',
-        }).nullable(),
+        nomeFamiliar: z.string(),
+        parentescoFamiliar: z.string(),
+        dataNascimentoFamiliar: z.coerce.date({ invalid_type_error: 'Data de nascimento inválida.' }).nullable(),
     })
   ),
-  pessoaComDeficienciaFamilia: z.string().optional(),
-  quemPessoaComDeficiencia: z.string().optional(),
+  familiarComDeficiencia: z.object({
+      possuiFamiliarComDeficiencia: z.enum(['Sim', 'Não']).refine(val => val !== null, { message: "Selecione uma opção." }).nullable(),
+      quemPossuiDeficiencia: z.string().optional(),
+  }),
 
   // --- Informações do Imóvel ---
-  loteamento: z.string().min(1, 'O loteamento é obrigatório'),
-  loteImovel: z.string().optional(),
-  quadraImovel: z.string().optional(),
-  tempoResidencia: z.string().optional(),
-  tipoLogradouro: z.string().optional(),
-  nomeLogradouro: z.string().min(1, 'O nome do logradouro é obrigatório'),
-  caracteristicasConstrucao: z.string().optional(),
-  outrasCaracteristicasConstrucao: z.string().optional(),
-  possuiOutroImovel: z.string().optional(),
-  qualOutroImovel: z.string().optional(),
-
-  // --- Documentação de Posse/Ocupação ---
-  tipoImovel: z.string().optional(),
-  tipoDocumentoOcupacao: z.string().optional(),
-  outroTipoDocumentoOcupacao: z.string().optional(),
-  observacaoDocumentoOcupacao: z.string().optional(),
-  dataDocumentoOcupacao: z.coerce.date().nullable().optional(),
-  anexosDocumentos: z.array(z.instanceof(File)).optional(),
+  loteamentoImovel: z.string().min(1, 'O loteamento é obrigatório'),
+  loteImovel: z.string().min(1, 'O lote é obrigatório'),
+  quadraImovel: z.string().min(1, 'A quadra é obrigatória'),
+  tempoDeResidencia: z.string().min(1, 'O tempo de residência é obrigatório'),
+  viaImovel: z.object({
+    tipoViaImovel: z.string().min(1, 'O tipo de via é obrigatório'),
+    nomeViaImovel: z.string().min(1, 'O nome da via é obrigatório'),
+  }),
+  caracteristicasConstrucao: z.string().min(1, 'A característica da construção é obrigatória'),
+  tipoDeImovel: z.string().min(1, 'O tipo de imóvel é obrigatório'),
+  OutroImovel: z.object({
+    possuiOutroImovel: z.enum(['Sim', 'Não']).refine(val => val !== null, { message: "Selecione uma opção." }).nullable(),
+    qualOutroImovel: z.string().optional(),
+  }),
   
+  // --- Documentação de Posse/Ocupação ---
+  caracteristicaReferenteAOcupacao: z.object({
+      tipoDeCaracteristicaReferenteAOcupacao: z.string().min(1, 'O tipo de característica do documento é obrigatório'),
+      outroTipoDocumentoOcupacao: z.string().optional(),
+  }),
+  Observacao: z.string().optional(),
+  dataDocumento: z.coerce.date({ invalid_type_error: "A data do documento é inválida." })
+    .refine(val => val !== null, { message: "A data do documento é obrigatória." })
+    .nullable(),
+  anexosDocumentos: z.array(z.instanceof(File)).optional(),
 })
 .superRefine((data, ctx) => {
     // Validação para dados do Cônjuge
     if ((data.estadoCivilTitular === 'Casado(a)' || data.estadoCivilTitular === 'União Estável')) {
-        if (!data.nomeConjuge) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['nomeConjuge'], message: 'O nome do cônjuge é obrigatório.' });
+        if (!data.nomeConjugue) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['nomeConjugue'], message: 'O nome do cônjuge é obrigatório.' });
         }
-        if (!data.cpfConjuge) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['cpfConjuge'], message: 'O CPF do cônjuge é obrigatório.' });
-        } else if (!cpf.isValid(data.cpfConjuge)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['cpfConjuge'], message: 'CPF do cônjuge inválido.' });
+        if (!data.cpfConjugue) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['cpfConjugue'], message: 'O CPF do cônjuge é obrigatório.' });
+        } else if (!cpf.isValid(data.cpfConjugue)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['cpfConjugue'], message: 'CPF do cônjuge inválido.' });
         }
     }
 
-    // Validações para campos condicionais
-    if (data.acessoBeneficiosSociais === 'Sim' && !data.qualBeneficioSocial) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['qualBeneficioSocial'], message: 'Informe qual o benefício social.' });
+    if (data.acessoABeneficiosSociais.possuiBeneficiosSociais === 'Sim' && !data.acessoABeneficiosSociais.quaisBeneficiosSociais) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['acessoABeneficiosSociais.quaisBeneficiosSociais'], message: 'Informe qual o benefício social.' });
     }
     
-    if (data.pessoaComDeficienciaFamilia === 'Sim' && !data.quemPessoaComDeficiencia) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quemPessoaComDeficiencia'], message: 'Informe quem é a pessoa com deficiência.' });
+    if (data.familiarComDeficiencia.possuiFamiliarComDeficiencia === 'Sim' && !data.familiarComDeficiencia.quemPossuiDeficiencia) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['familiarComDeficiencia.quemPossuiDeficiencia'], message: 'Informe quem é a pessoa com deficiência.' });
     }
     
-    if (data.caracteristicasConstrucao === 'Outro' && !data.outrasCaracteristicasConstrucao) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['outrasCaracteristicasConstrucao'], message: 'Descreva as outras características.' });
-    }
-
-    if (data.possuiOutroImovel === 'Sim' && !data.qualOutroImovel) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['qualOutroImovel'], message: 'Informe onde se localiza o outro imóvel.' });
-    }
-
-    if (data.tipoDocumentoOcupacao === 'Outro' && !data.outroTipoDocumentoOcupacao) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['outroTipoDocumentoOcupacao'], message: 'Anexe outro tipo de documento.' });
+    if (data.OutroImovel.possuiOutroImovel === 'Sim' && !data.OutroImovel.qualOutroImovel) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['OutroImovel.qualOutroImovel'], message: 'Informe onde se localiza o outro imóvel.' });
     }
     
+    if (data.caracteristicaReferenteAOcupacao.tipoDeCaracteristicaReferenteAOcupacao === 'Outro' && !data.caracteristicaReferenteAOcupacao.outroTipoDocumentoOcupacao) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['caracteristicaReferenteAOcupacao.outroTipoDocumentoOcupacao'], message: 'Descreva o outro tipo de documento.' });
+    }
 });

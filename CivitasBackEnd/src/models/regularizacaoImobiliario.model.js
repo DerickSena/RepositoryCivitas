@@ -17,49 +17,55 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     */
     nomeTitular: {
       type: String,
-      required: true,
       trim: true,
       uppercase :true,
+      required:[true, 'BK nomeTitular é obrigatório']
     },
     cpfTitular:{
       type:String,
       trim:true,
+      required:[true, 'BK cpfTitular é obrigatório']
     },
     dataNascimentoTitular:{
       type: Date,
-      required: true,
       trim: true,
+      required:[true, 'BK dataNascimentoTitular é obrigatório']
     },
     profissaoTitular:{
       type: String,
       trim: true,
       uppercase :true,
+      required:[true, 'BK profissaoTitular é obrigatório']
     },
     tituloEleitoralTitular:{
       type: String,
       trim: true,
+      required:[true, 'BK tituloEleitoralTitular é obrigatório']
     },
     rgTitular:{
       type: String,
-      required: true,
       trim: true,
+      required:[true, 'BK rgTitular é obrigatório']
     },
     contatoTitular:{
       type: String,
       trim: true,
+      required:[true, 'BK contatoTitular é obrigatório']
     },
     escolaridadeTitular:{
       type: String,
       trim: true,
       uppercase: true,
+      required:[true, 'BK escolaridadeTitular é obrigatório']
     },
     cadUnicoTitular:{
       type: String,
       trim: true,
+      required:[true, 'BK cadUnicoTitular é obrigatório']
     },
     estadoCivilTitular:{
       type: String,
-      required: true,
+      required:[true, 'BK estadoCivilTitular é obrigatório']
       //'SOLTEIRO','SOLTEIRA','UNIÃO ESTÁVEL','CASADO','CASADA','DIVORCIADO','DIVORCIADA'] //duvida se deixo ou nao isso
       
     },
@@ -103,6 +109,7 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     */
     rendaFamiliar:{
       type: String,
+      required:[true, 'BK rendaFamiliar é obrigatório']
       //'Menos de 1 Salário','De 1 a 3 Salários','De 3 a 5 Salários','Mais de 5 Salários'
     },
 
@@ -110,6 +117,7 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     acessoABeneficiosSociais:{
       possuiBeneficiosSociais: {
         type:Boolean,
+        required:[true, 'BK possuiBeneficiosSociais é obrigatório']
       },
       quaisBeneficiosSociais:{
         type:String,
@@ -142,7 +150,7 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     familiarComDeficiencia:{
       possuiFamiliarComDeficiencia:{
         type:Boolean,
-        required:true,
+        required:[true, 'BK possuiFamiliarComDeficiencia é obrigatório']
       },
       quemPossuiDeficiencia:{
         type:String,
@@ -153,17 +161,20 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     */
     loteamentoImovel:{
       type: String,
-      required:true,
+      required:[true, 'BK loteamentoImovel é obrigatório']
     },
     loteImovel:{
       type: String,
+      required:[true, 'BK loteImovel é obrigatório']
     },
     quadraImovel:{
       type: String,
+      required:[true, 'BK quadraImovel é obrigatório']
     },
     viaImovel:{
       tipoViaImovel:{
         type:String,
+        required:[true, 'BK tipoViaImovel é obrigatório']
         //['Av','Rua']
       },
       nomeViaImovel:{
@@ -172,17 +183,20 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     },
     caracteristicasConstrucao:{
       type:String,
+      required:[true, 'BK caracteristicasConstrucao é obrigatório']
            // ['Alvenaria', 'Taipa', 'Madeira', 'Outros']
 
     },
 
     tempoDeResidencia:{
       type: String,
+      required:[true, 'BK tempoDeResidencia é obrigatório']
       //'Menos de 5 Anos', 'Mais de 5 Anos'],
     },
     OutroImovel:{
       possuiOutroImovel:{
         type:Boolean,
+        required:[true, 'BK possuiOutroImovel é obrigatório']
       },
       qualOutroImovel:{
         type:String,
@@ -190,6 +204,7 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     },
     tipoDeImovel:{
       type: String,
+      required:[true, 'BK tipoDeImovel é obrigatório']
       //'Residencial', 'Residencial e Comercial', 'Comercial'],
     },
     /*
@@ -198,6 +213,7 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     caracteristicaReferenteAOcupacao:{
       tipoDeCaracteristicaReferenteAOcupacao:{
         type: String,
+        required:[true, 'BK tipoDeCaracteristicaReferenteAOcupacao é obrigatório']
         //'Termo de Ocupação', 'Recibo', 'Cessão de Direito', 'Invasão', 'Outro'],
       },//duvida se uso ou nao o enum
     },
@@ -206,7 +222,11 @@ const regularizacaoImobiliariaSchema = mongoose.Schema(
     },
     dataDocumento:{
       type: Date,
-      required:true,
+      required:[true, 'BK dataDocumento é obrigatório']
+    },
+    caminhoAnexo: {
+      type: [String], // Altere para um array de Strings
+      trim: true,
     },
     
 

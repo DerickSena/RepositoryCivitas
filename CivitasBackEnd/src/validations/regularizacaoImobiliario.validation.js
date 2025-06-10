@@ -1,105 +1,100 @@
-const { validator, cpf } = require('cpf-cnpj-validator');
+const { validator } = require('cpf-cnpj-validator');
 const Joi = require('joi').extend(validator);
-const { password, objectId } = require('./custom.validation');
 
 const create = {
-  body: Joi.object().keys({
-    /*
-    Identificacao do titular
-    */
-    nomeTitular: Joi.string().required(),
-    cpfTitular: Joi.document().cpf().required(), 
-    dataNascimentoTitular: Joi.date().required(),
-    profissaoTitular: Joi.string().optional(),
-    tituloEleitoralTitular: Joi.string().pattern(/^\d+$/).optional(),
-    rgTitular: Joi.string().pattern(/^\d+$/).required(),
-    contatoTitular: Joi.string().optional(),
-    escolaridadeTitular: Joi.string().optional(),
-    cadUnicoTitular: Joi.string().optional(),
-    estadoCivilTitular: Joi.string().required(), //'SOLTEIRO','SOLTEIRA','UNIÃO ESTÁVEL','CASADO','CASADA','DIVORCIADO','DIVORCIADA' //duvida se deixo ou nao isso
+  body: Joi.object()
+    .keys({
+      // --- Identificacao do titular ---
+      nomeTitular: Joi.string().required(),
+      cpfTitular: Joi.document().cpf().required(),
+      dataNascimentoTitular: Joi.date().iso().required(),
+      profissaoTitular: Joi.string().required(),
+      tituloEleitoralTitular: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+      rgTitular: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+      contatoTitular: Joi.string().required(),
+      escolaridadeTitular: Joi.string().required(),
+      cadUnicoTitular: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+      estadoCivilTitular: Joi.string().required(),
 
-    
-    /*
-    identificacao Conjugue
-    */
-    nomeConjugue:Joi.string().optional(),
-    dataNascimentoConjugue:Joi.date().optional(),
-    cpfConjugue:Joi.string().length(11).optional(),
-    profissaoConjugue:Joi.string().optional(),
-    rgConjugue:Joi.string().optional(),
-    contatoConjugue:Joi.string().optional(),
-    escolaridadeConjugue:Joi.string().optional(),
-    /*
-    Renda Familiar
-    */
-    rendaFamiliar:Joi.string(),
+      // --- identificacao Conjugue (Opcional) ---
+      nomeConjugue: Joi.string().allow('', null).optional(),
+      dataNascimentoConjugue: Joi.date().iso().allow(null).optional(),
+      cpfConjugue: Joi.string().allow('', null).optional(),
+      profissaoConjugue: Joi.string().allow('', null).optional(),
+      rgConjugue: Joi.string().allow('', null).optional(),
+      contatoConjugue: Joi.string().allow('', null).optional(),
+      escolaridadeConjugue: Joi.string().allow('', null).optional(),
 
-    acessoABeneficiosSociais:Joi.object({
-      possuiBeneficiosSociais: Joi.boolean().required(),
-      quaisBeneficiosSociais:Joi.when('possuiBeneficiosSociais',{
-        is: true,
-        then:Joi.string().required(),
-        otherwise:Joi.string().optional(),
-      })
-    }).required(),
-    /*
-    Composicao Familiar
-    */
-    composicaoFamiliar: Joi.array().items(
-      Joi.object({
-        nomeFamiliar : Joi.string().required(),
-        parentescoFamiliar : Joi.string().required(),
-        dataNascimentoFamiliar : Joi.date().required(),
-      })
-    ).optional(),
-    familiarComDeficiencia: Joi.object({
-      possuiFamiliarComDeficiencia:Joi.boolean().required(),
-      quemPossuiDeficiencia:Joi.when('possuiFamiliarComDeficiencia',{
-        is:true,
-        then:Joi.string().required(),
-        otherwise:Joi.string().optional(),
-      })
-    }).required(),
+      // --- Renda Familiar ---
+      rendaFamiliar: Joi.string().required(),
 
-    /*
-     IDENTIFICAÇÃO DO IMÓVEL HABILITADO
-    */
-    loteamentoImovel:Joi.string().required(),
-    loteImovel:Joi.string(),
-    quadraImovel:Joi.string(),
+      // --- Objetos (Serão parseados pelo middleware) ---
+      acessoABeneficiosSociais: Joi.object({
+        possuiBeneficiosSociais: Joi.string().valid('Sim', 'Não').required(),
+        quaisBeneficiosSociais: Joi.when('possuiBeneficiosSociais', {
+          is: 'Sim',
+          then: Joi.string().required(),
+          otherwise: Joi.string().allow('', null).optional(),
+        }),
+      }).required(),
 
-    viaImovel:Joi.object({
-      tipoViaImovel:Joi.string().valid('Av.', 'Rua').required(),
-      nomeViaImovel:Joi.string().required(),
-    }).required(),
+      composicaoFamiliar: Joi.array()
+        .items(
+          Joi.object({
+            nomeFamiliar: Joi.string().optional(),
+            parentescoFamiliar: Joi.string().optional(),
+            dataNascimentoFamiliar: Joi.date().iso().allow(null).optional(),
+          })
+        )
+        .optional(),
 
-    caracteristicasConstrucao:Joi.string().required(),
+      familiarComDeficiencia: Joi.object({
+        possuiFamiliarComDeficiencia: Joi.string().valid('Sim', 'Não').required(),
+        quemPossuiDeficiencia: Joi.when('possuiFamiliarComDeficiencia', {
+          is: 'Sim',
+          then: Joi.string().required(),
+          otherwise: Joi.string().allow('', null).optional(),
+        }),
+      }).required(),
 
-    tempoDeResidencia:Joi.object({
-      possuiOutroImovel:Joi.boolean().required(),
-      qualOutroImovel:Joi.when('possuiOutroImovel',{
-        is:true,
-        then:Joi.string().required(),
-        otherwise:Joi.string().optional(),
-      })
-    }),
+      // --- Imóvel ---
+      loteamentoImovel: Joi.string().required(),
+      loteImovel: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+      quadraImovel: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
 
-    tipoDeImovel:Joi.string(),
+      viaImovel: Joi.object({
+        tipoViaImovel: Joi.string().required(),
+        nomeViaImovel: Joi.string().required(),
+      }).required(),
 
-    /*
-    CARACTERÍSTICAS/ DOCUMENTOS REFERENTE A OCUPAÇÃO/ DATA DO DOCUMENTO
-    */
-    caracteristicaReferenteAOcupacao:Joi.object({
-      tipoDeCaracteristicaReferenteAOcupacao:Joi.string(),//Termo de ocupacao,recibo,cessao de direto,invasao ou outro
-    }).required(),
+      caracteristicasConstrucao: Joi.string().required(),
+      tempoDeResidencia: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
+      tipoDeImovel: Joi.string().required(),
 
-    Observacao:Joi.string().optional(),
-    dataDocumento:Joi.date().required(),
+      OutroImovel: Joi.object({
+        possuiOutroImovel: Joi.string().valid('Sim', 'Não').required(),
+        qualOutroImovel: Joi.when('possuiOutroImovel', {
+          is: 'Sim',
+          then: Joi.string().required(),
+          otherwise: Joi.string().allow('', null).optional(),
+        }),
+      }).required(),
 
+      // --- Documentação ---
+      caracteristicaReferenteAOcupacao: Joi.object({
+        tipoDeCaracteristicaReferenteAOcupacao: Joi.string().required(),
+        outroTipoDocumentoOcupacao: Joi.when('tipoDeCaracteristicaReferenteAOcupacao', {
+          is: 'Outro',
+          then: Joi.string().required(),
+          otherwise: Joi.string().allow('', null).optional(),
+        }),
+      }).required(),
 
-  }),
+      Observacao: Joi.string().allow('', null).optional(),
+      dataDocumento: Joi.date().iso().required(),
+    })
+    .options({ allowUnknown: true }), // Permite outros campos (como os de arquivo)
 };
-
 
 module.exports = {
   create,
